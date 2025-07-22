@@ -10,7 +10,7 @@ class _Settings:
     DATABASE_HOST = os.getenv("DB_HOST")
     DATABASE_PORT = os.getenv("DB_PORT")
     DATABASE_NAME = os.getenv("DB_NAME")
-    DB_URL = f"postgresql://{DATABASE_USER}:{DATABASE_SECRET}@{DATABASE_HOST}:{DATABASE_PORT}/{DATABASE_NAME}"
+    DATABASE_URL = f"postgresql://{DATABASE_USER}:{DATABASE_SECRET}@{DATABASE_HOST}:{DATABASE_PORT}/{DATABASE_NAME}"
 
 
 settings = _Settings()
