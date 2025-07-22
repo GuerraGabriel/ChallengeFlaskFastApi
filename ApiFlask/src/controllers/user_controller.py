@@ -3,7 +3,7 @@ from werkzeug.datastructures.file_storage import FileStorage
 import csv
 
 from src.exceptions.import_exceptions import (
-    InvalidFileContentType,
+    InvalidFileType,
     MissMatchColumnsError,
     NoColumnsError,
     NoFileProvided,
@@ -32,11 +32,11 @@ class UserAddressController:
             raise NoFileProvided("No file provided")
 
         if file.content_type != "text/csv":
-            raise InvalidFileContentType("Invalid content type")
+            raise InvalidFileType("Invalid file type received")
 
         csv_input = self._convert_file_to_csv(file)
         if not csv_input.fieldnames:
-            raise NoColumnsError("")
+            raise NoColumnsError("No columns found. Is the file correctly formatted?")
 
         columns_received = {column.lower() for column in csv_input.fieldnames}
 

@@ -4,7 +4,7 @@ from werkzeug.datastructures.file_storage import FileStorage
 from unittest import mock
 
 from src.exceptions.import_exceptions import (
-    InvalidFileContentType,
+    InvalidFileType,
     MissMatchColumnsError,
     NoColumnsError,
     NoFileProvided,
@@ -33,7 +33,7 @@ def test_import_user_address_no_file_provided(controller, mock_file):
 def test_import_user_address_missmatch_content_type_error(controller, mock_file):
     mock_file.content_type = "text/plain"
 
-    with pytest.raises(InvalidFileContentType):
+    with pytest.raises(InvalidFileType):
         controller.import_user_address(mock_file)
 
 
@@ -55,6 +55,18 @@ def test_import_user_address_no_columns_error(controller, mock_file):
 
 
 def test_import_user_address_success(controller, mock_file):
+    result = controller.import_user_address(mock_file)
+
+    assert result is None
+
+
+def test_import_user_address_case_insensitive_columns_name_success(
+    controller, csv_content
+):
+    mock_file = mock.MagicMock(spec=FileStorage)
+    mock_file.content_type = "text/csv"
+    mock_file.stream = io.BytesIO(bytes(csv_content.upper(), encoding="utf-8"))
+
     result = controller.import_user_address(mock_file)
 
     assert result is None
