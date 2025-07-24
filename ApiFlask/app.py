@@ -1,5 +1,6 @@
 from flask import Flask
 from src.models.base import Base
+from src.routes.user_address_route import blueprint as user_bp
 from container import Container
 
 
@@ -9,6 +10,8 @@ def create_app():
     sa_engine = container.sa_engine()
     Base.metadata.create_all(sa_engine)
 
+    app.container = container
+    app.register_blueprint(user_bp, url_prefix="/users")
     return app
 
 

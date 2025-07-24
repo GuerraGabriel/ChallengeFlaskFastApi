@@ -1,8 +1,9 @@
+from src.exceptions.user_address_exceptions import UserAlreadyExists
 from src.dtos.user_address_dto import UserAddressDTO
 from src.models.address import Address
 from src.models.user import User
 from src.repositories.user_address_repository import UserAddressRepository
-from src.schemas.user_address_schema import UserAddressSchema
+from sqlalchemy.exc import IntegrityError
 
 
 class UserAddressService:
@@ -29,5 +30,7 @@ class UserAddressService:
         )
         try:
             self.user_address_repository.create(user)
+        except IntegrityError as e:
+            raise UserAlreadyExists("User already exists") from e
         except Exception as e:
             raise ValueError(f"Failed to create user address: {e}") from e

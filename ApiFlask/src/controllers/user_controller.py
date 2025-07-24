@@ -1,7 +1,9 @@
 import io
+from typing import List
 from werkzeug.datastructures.file_storage import FileStorage
 import csv
 
+from src.exceptions.user_address_exceptions import UserAlreadyExists
 from src.schemas.user_address_schema import UserAddressSchema
 from src.services.user_address_service import UserAddressService
 from src.exceptions.import_exceptions import (
@@ -16,7 +18,7 @@ class UserAddressController:
     def __init__(self, user_address_service: UserAddressService):
         self.user_address_service = user_address_service
 
-    def import_user_address(self, file: FileStorage | None):
+    def import_user_address(self, file: FileStorage | None) -> List[int]:
         COLUMNS_NAME = [
             "Nome",
             "Nome social",
@@ -47,28 +49,33 @@ class UserAddressController:
             raise MissMatchColumnsError(
                 f"Invalid columns received. Expected {COLUMNS_NAME}, got {columns_received}"
             )
+        rows_with_error = []
 
-        for row in csv_input:
-            self.create_user_address(
-                {
-                    "nome": row["Nome"],
-                    "nome_social": row["Nome social"],
-                    "email": row["Email"],
-                    "idade": row["Idade"],
-                    "profissao": row["Profissão"],
-                    "cep": row["CEP"],
-                    "numero": row["Número"],
-                    "rua": row["Rua"],
-                    "bairro": row["Bairro"],
-                    "cidade": row["Cidade"],
-                    "estado": row["Estado"],
-                    "pais": row["País"],
-                }
-            )
+        for row_number, row in enumerate(csv_input, start=1):
+            try:
+                self.create_user_address(
+                    {
+                        "nome": row["Nome"],
+                        "nome_social": row["Nome social"],
+                        "email": row["Email"],
+                        "idade": row["Idade"],
+                        "profissao": row["Profissão"],
+                        "cep": row["CEP"],
+                        "numero": row["Número"],
+                        "rua": row["Rua"],
+                        "bairro": row["Bairro"],
+                        "cidade": row["Cidade"],
+                        "estado": row["Estado"],
+                        "pais": row["País"],
+                    }
+                )
+            except UserAlreadyExists:
+                rows_with_error.append(row_number)
+                continue
 
-        return None
+        return rows_with_error
 
-    def create_user_address(self, data: dict) -> None:
+    def create_user_address(self, data: dict):
         user_address = UserAddressSchema.load(data)
         self.user_address_service.create_user_address(user_address)
 
