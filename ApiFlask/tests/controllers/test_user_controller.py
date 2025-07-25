@@ -80,7 +80,7 @@ def test_import_user_address_success(controller, mock_file):
         expected_dto_called_with
         == controller.user_address_service.create_user_address.call_args[0][0]
     )
-    assert result is None
+    assert result == []
 
 
 def test_get_users_address_success(controller):
