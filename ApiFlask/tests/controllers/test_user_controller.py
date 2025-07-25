@@ -81,3 +81,21 @@ def test_import_user_address_success(controller, mock_file):
         == controller.user_address_service.create_user_address.call_args[0][0]
     )
     assert result is None
+
+
+def test_get_users_address_success(controller):
+    service_data = [
+        {"users": "data"},
+    ]
+    expected_response = {
+        "data": service_data,
+        "pagination": {
+            "current_page": 2,
+            "total_pages": 10,
+            "page_size": 10,
+        },
+    }
+    controller.user_address_service.get_user_addresses.return_value = service_data, 10
+    response = controller.get_users_address(page_size=10, page_number=2)
+    assert controller.user_address_service.get_user_addresses.call_count == 1
+    assert response == expected_response

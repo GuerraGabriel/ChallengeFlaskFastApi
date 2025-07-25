@@ -84,3 +84,22 @@ class UserAddressController:
         csv_input = csv.DictReader(stream)
 
         return csv_input
+
+    def get_users_address(self, page_size: int, page_number: int) -> dict:
+        if page_size > 100:
+            page_size = 100
+
+        if page_number < 0:
+            page_number = 0
+
+        users, total_pages = self.user_address_service.get_user_addresses(
+            page_size, page_number
+        )
+        return {
+            "data": users,
+            "pagination": {
+                "current_page": page_number,
+                "total_pages": total_pages,
+                "page_size": page_size,
+            },
+        }

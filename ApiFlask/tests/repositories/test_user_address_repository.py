@@ -85,13 +85,22 @@ def test_delete_user_not_found(repository):
         repository.delete(999)
 
 
-def test_list_users(repository):
+def test_get_users_paginated(repository):
     user1 = User(
         name="Alice",
         preferred_name="Ali",
         email="alice@example.com",
         age=28,
         occupation="Analyst",
+        address=Address(
+            cep="00000000",
+            number=123,
+            street="rua",
+            neighborhood="bairro",
+            city="cidade",
+            state="estado",
+            country="pais",
+        ),
     )
     user2 = User(
         name="Bob",
@@ -99,12 +108,21 @@ def test_list_users(repository):
         email="bob@example.com",
         age=32,
         occupation="Dev",
+        address=Address(
+            cep="00000000",
+            number=123,
+            street="rua",
+            neighborhood="bairro",
+            city="cidade",
+            state="estado",
+            country="pais",
+        ),
     )
     repository.create(user1)
     repository.create(user2)
 
-    users = repository.list()
+    users, total_pages = repository.get_users_paginated(page_size=2, page_number=1)
     assert len(users) == 2
-    emails = [u.email for u in users]
-    assert "alice@example.com" in emails
-    assert "bob@example.com" in emails
+    assert users[0] == user1
+    assert users[1] == user2
+    assert total_pages == 1

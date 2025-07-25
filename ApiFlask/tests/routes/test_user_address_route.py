@@ -13,15 +13,23 @@ from sqlalchemy.exc import DatabaseError
 
 
 @pytest.fixture
+def mock_get_users_address():
+    return mock.MagicMock()
+
+
+@pytest.fixture
 def mock_import_user_address():
     return mock.MagicMock()
 
 
 @pytest.fixture
-def mock_container(mock_import_user_address):
+def mock_container(mock_import_user_address, mock_get_users_address):
     container_mock = mock.MagicMock(spec=Container)
     container_mock.user_address_controller.return_value.import_user_address = (
         mock_import_user_address
+    )
+    container_mock.user_address_controller.return_value.get_users_address = (
+        mock_get_users_address
     )
     return container_mock
 
@@ -122,3 +130,27 @@ def test_import_user_address_partial_success_207(
     )
     assert response.status_code == 207
     assert response.json == expected_response
+
+
+def test_get_addresses_success(client, mock_get_users_address):
+    mock_get_users_address.return_value = {
+        "data": [
+            {
+                "bairro": "Neighborhood",
+                "cep": "12345-678",
+                "cidade": "City",
+                "email": "test@example.com",
+                "estado": "State",
+                "idade": None,
+                "nome": "John Doe",
+                "nome_social": None,
+                "numero": "123",
+                "pais": "Country",
+                "profissao": None,
+                "rua": "Main St",
+            }
+        ],
+        "page": {"current_page": 1, "page_size": 10, "total_pages": 1},
+    }
+    response = client.get("/users/addresses")
+    assert response.status_code == 200

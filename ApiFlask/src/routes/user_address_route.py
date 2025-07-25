@@ -10,6 +10,8 @@ from src.exceptions.import_exceptions import (
 
 blueprint = Blueprint("user", __name__, url_prefix="/users")
 
+ERROR_500_MESSAGE = {"error": "Unexpected error. Try again later or contact support."}
+
 
 @blueprint.route("/import-address", methods=["POST"])
 def import_user_address():
@@ -35,7 +37,7 @@ def import_user_address():
     except Exception as e:
         current_app.logger.error(e)
         return (
-            jsonify({"error": "Unexpected error. Try again later or contact support."}),
+            jsonify(ERROR_500_MESSAGE),
             500,
         )
 
@@ -50,3 +52,27 @@ def import_user_address():
             207,
         )
     return jsonify({"message": "User addresses imported successfully"}), 201
+
+
+@blueprint.route("/addresses", methods=["GET"])
+def get_user_address():
+    container: Container = current_app.container  # type: ignore
+    controller = container.user_address_controller()
+
+    page_size = request.args.get("page_size", default=100, type=int)
+    if page_size > 100:
+        page_size = 100
+
+    page = request.args.get("page", default=1, type=int)
+    try:
+        response = controller.get_users_address(page_number=page, page_size=page_size)
+        return (
+            jsonify(response),
+            200,
+        )
+    except Exception as e:
+        current_app.logger.error(e)
+        return (
+            jsonify(ERROR_500_MESSAGE),
+            500,
+        )
